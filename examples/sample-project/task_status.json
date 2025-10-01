@@ -1,0 +1,302 @@
+{
+  "project": "Pomodoro Timer",
+  "description": "一个简单的番茄钟应用，帮助用户管理时间和提高专注力",
+  "created_at": "2025-10-01T00:00:00Z",
+  "updated_at": "2025-10-01T00:00:00Z",
+  "total_tasks": 10,
+  "completed_tasks": 0,
+  "in_progress_tasks": 0,
+  "pending_tasks": 10,
+  "tasks": [
+    {
+      "id": "T001",
+      "title": "搭建项目基础结构",
+      "description": "使用 Vite 创建 React + TypeScript 项目，配置开发环境，安装基础依赖，设置代码格式化工具",
+      "status": "pending",
+      "priority": "高",
+      "estimated_hours": 2,
+      "actual_hours": 0,
+      "dependencies": [],
+      "acceptance_criteria": [
+        "项目可以启动（npm run dev）",
+        "TypeScript 配置正确",
+        "ESLint 和 Prettier 配置完成",
+        "Git 仓库初始化完成",
+        "基础目录结构创建完成（src/, tests/, public/）"
+      ],
+      "assigned_to": "Developer",
+      "files_to_create": [
+        "vite.config.ts",
+        ".eslintrc.json",
+        ".prettierrc",
+        "tsconfig.json",
+        "src/main.tsx",
+        "src/App.tsx",
+        "src/vite-env.d.ts"
+      ],
+      "files_to_modify": [],
+      "created_at": "2025-10-01T00:00:00Z",
+      "updated_at": "2025-10-01T00:00:00Z",
+      "completed_at": null
+    },
+    {
+      "id": "T002",
+      "title": "实现计时器核心逻辑",
+      "description": "创建 useTimer 自定义 Hook，实现计时器的核心逻辑，包括开始、暂停、重置、倒计时功能",
+      "status": "pending",
+      "priority": "高",
+      "estimated_hours": 3,
+      "actual_hours": 0,
+      "dependencies": ["T001"],
+      "acceptance_criteria": [
+        "useTimer Hook 实现完成",
+        "支持开始、暂停、重置功能",
+        "支持自定义倒计时时长",
+        "计时结束时触发回调",
+        "测试覆盖率 > 80%"
+      ],
+      "assigned_to": "Developer",
+      "files_to_create": [
+        "src/hooks/useTimer.ts",
+        "tests/unit/useTimer.test.ts"
+      ],
+      "files_to_modify": [],
+      "created_at": "2025-10-01T00:00:00Z",
+      "updated_at": "2025-10-01T00:00:00Z",
+      "completed_at": null
+    },
+    {
+      "id": "T003",
+      "title": "实现计时器 UI 组件",
+      "description": "创建 Timer 组件，显示倒计时时间，提供开始、暂停、重置按钮，支持不同的计时模式（工作、短休息、长休息）",
+      "status": "pending",
+      "priority": "高",
+      "estimated_hours": 2,
+      "actual_hours": 0,
+      "dependencies": ["T002"],
+      "acceptance_criteria": [
+        "Timer 组件实现完成",
+        "时间显示格式正确（MM:SS）",
+        "按钮状态正确切换",
+        "支持三种计时模式切换",
+        "组件测试通过"
+      ],
+      "assigned_to": "Developer",
+      "files_to_create": [
+        "src/components/Timer.tsx",
+        "src/components/Timer.module.css",
+        "tests/unit/Timer.test.tsx"
+      ],
+      "files_to_modify": [
+        "src/App.tsx"
+      ],
+      "created_at": "2025-10-01T00:00:00Z",
+      "updated_at": "2025-10-01T00:00:00Z",
+      "completed_at": null
+    },
+    {
+      "id": "T004",
+      "title": "实现任务管理功能",
+      "description": "创建任务管理的核心逻辑，包括添加任务、删除任务、标记任务完成、任务列表管理",
+      "status": "pending",
+      "priority": "中",
+      "estimated_hours": 2.5,
+      "actual_hours": 0,
+      "dependencies": ["T001"],
+      "acceptance_criteria": [
+        "useTasks Hook 实现完成",
+        "支持添加、删除、更新任务",
+        "支持标记任务完成/未完成",
+        "任务数据结构合理",
+        "测试覆盖率 > 80%"
+      ],
+      "assigned_to": "Developer",
+      "files_to_create": [
+        "src/hooks/useTasks.ts",
+        "src/types/task.ts",
+        "tests/unit/useTasks.test.ts"
+      ],
+      "files_to_modify": [],
+      "created_at": "2025-10-01T00:00:00Z",
+      "updated_at": "2025-10-01T00:00:00Z",
+      "completed_at": null
+    },
+    {
+      "id": "T005",
+      "title": "实现任务列表 UI",
+      "description": "创建 TaskList 组件，显示任务列表，支持添加、删除、标记完成操作",
+      "status": "pending",
+      "priority": "中",
+      "estimated_hours": 2,
+      "actual_hours": 0,
+      "dependencies": ["T004"],
+      "acceptance_criteria": [
+        "TaskList 组件实现完成",
+        "支持添加新任务",
+        "支持删除任务",
+        "支持标记任务完成",
+        "UI 交互流畅"
+      ],
+      "assigned_to": "Developer",
+      "files_to_create": [
+        "src/components/TaskList.tsx",
+        "src/components/TaskList.module.css",
+        "src/components/TaskItem.tsx",
+        "tests/unit/TaskList.test.tsx"
+      ],
+      "files_to_modify": [
+        "src/App.tsx"
+      ],
+      "created_at": "2025-10-01T00:00:00Z",
+      "updated_at": "2025-10-01T00:00:00Z",
+      "completed_at": null
+    },
+    {
+      "id": "T006",
+      "title": "实现统计功能",
+      "description": "创建统计功能，记录完成的番茄钟数量、工作时长、任务完成率等数据",
+      "status": "pending",
+      "priority": "中",
+      "estimated_hours": 2,
+      "actual_hours": 0,
+      "dependencies": ["T002", "T004"],
+      "acceptance_criteria": [
+        "useStatistics Hook 实现完成",
+        "记录完成的番茄钟数量",
+        "记录总工作时长",
+        "计算任务完成率",
+        "支持按日期查询统计"
+      ],
+      "assigned_to": "Developer",
+      "files_to_create": [
+        "src/hooks/useStatistics.ts",
+        "src/types/statistics.ts",
+        "tests/unit/useStatistics.test.ts"
+      ],
+      "files_to_modify": [],
+      "created_at": "2025-10-01T00:00:00Z",
+      "updated_at": "2025-10-01T00:00:00Z",
+      "completed_at": null
+    },
+    {
+      "id": "T007",
+      "title": "实现统计页面 UI",
+      "description": "创建 Statistics 组件，以图表形式展示统计数据",
+      "status": "pending",
+      "priority": "中",
+      "estimated_hours": 1.5,
+      "actual_hours": 0,
+      "dependencies": ["T006"],
+      "acceptance_criteria": [
+        "Statistics 组件实现完成",
+        "显示今日完成的番茄钟数量",
+        "显示今日工作时长",
+        "显示任务完成率",
+        "数据可视化清晰"
+      ],
+      "assigned_to": "Developer",
+      "files_to_create": [
+        "src/components/Statistics.tsx",
+        "src/components/Statistics.module.css",
+        "tests/unit/Statistics.test.tsx"
+      ],
+      "files_to_modify": [
+        "src/App.tsx"
+      ],
+      "created_at": "2025-10-01T00:00:00Z",
+      "updated_at": "2025-10-01T00:00:00Z",
+      "completed_at": null
+    },
+    {
+      "id": "T008",
+      "title": "实现数据持久化",
+      "description": "使用 localStorage 实现数据持久化，保存任务列表和统计数据",
+      "status": "pending",
+      "priority": "低",
+      "estimated_hours": 2,
+      "actual_hours": 0,
+      "dependencies": ["T004", "T006"],
+      "acceptance_criteria": [
+        "任务数据持久化到 localStorage",
+        "统计数据持久化到 localStorage",
+        "页面刷新后数据不丢失",
+        "数据格式兼容性处理",
+        "错误处理完善"
+      ],
+      "assigned_to": "Developer",
+      "files_to_create": [
+        "src/utils/storage.ts",
+        "tests/unit/storage.test.ts"
+      ],
+      "files_to_modify": [
+        "src/hooks/useTasks.ts",
+        "src/hooks/useStatistics.ts"
+      ],
+      "created_at": "2025-10-01T00:00:00Z",
+      "updated_at": "2025-10-01T00:00:00Z",
+      "completed_at": null
+    },
+    {
+      "id": "T009",
+      "title": "添加音效和通知",
+      "description": "添加计时结束音效，实现浏览器通知功能",
+      "status": "pending",
+      "priority": "低",
+      "estimated_hours": 1.5,
+      "actual_hours": 0,
+      "dependencies": ["T003"],
+      "acceptance_criteria": [
+        "计时结束时播放音效",
+        "支持浏览器通知",
+        "用户可以开启/关闭音效",
+        "用户可以开启/关闭通知",
+        "音效文件加载正确"
+      ],
+      "assigned_to": "Developer",
+      "files_to_create": [
+        "src/hooks/useNotification.ts",
+        "src/utils/audio.ts",
+        "public/sounds/complete.mp3",
+        "tests/unit/useNotification.test.ts"
+      ],
+      "files_to_modify": [
+        "src/components/Timer.tsx"
+      ],
+      "created_at": "2025-10-01T00:00:00Z",
+      "updated_at": "2025-10-01T00:00:00Z",
+      "completed_at": null
+    },
+    {
+      "id": "T010",
+      "title": "优化和性能调优",
+      "description": "代码优化、性能调优、添加 loading 状态、错误边界处理",
+      "status": "pending",
+      "priority": "低",
+      "estimated_hours": 2,
+      "actual_hours": 0,
+      "dependencies": ["T001", "T002", "T003", "T004", "T005", "T006", "T007", "T008", "T009"],
+      "acceptance_criteria": [
+        "代码经过 ESLint 检查",
+        "移除未使用的代码",
+        "优化组件渲染性能",
+        "添加错误边界组件",
+        "添加 loading 状态"
+      ],
+      "assigned_to": "Developer",
+      "files_to_create": [
+        "src/components/ErrorBoundary.tsx",
+        "tests/unit/ErrorBoundary.test.tsx"
+      ],
+      "files_to_modify": [
+        "src/App.tsx",
+        "src/components/Timer.tsx",
+        "src/components/TaskList.tsx",
+        "src/components/Statistics.tsx"
+      ],
+      "created_at": "2025-10-01T00:00:00Z",
+      "updated_at": "2025-10-01T00:00:00Z",
+      "completed_at": null
+    }
+  ]
+}
+
