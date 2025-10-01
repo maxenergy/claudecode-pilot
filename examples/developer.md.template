@@ -478,14 +478,14 @@ WHILE (还有待执行任务):
 
 ### 工具简介
 
-`task.js` 是任务管理工具，位于 `.claude-pilot/tools/task.js`，提供任务状态管理和依赖检查功能。
+`task.js` 是任务管理工具，位于 `.claude/tools/task.js`，提供任务状态管理和依赖检查功能。
 
 ### 在代码中使用 task.js
 
 #### 1. 引入模块
 
 ```javascript
-const taskManager = require('./.claude-pilot/tools/task.js');
+const taskManager = require('./.claude/tools/task.js');
 ```
 
 #### 2. 核心函数
@@ -569,7 +569,7 @@ const completedTasks = taskManager.listTasks('completed');
 #### 完整的自动化执行流程
 
 ```javascript
-const taskManager = require('./.claude-pilot/tools/task.js');
+const taskManager = require('./.claude/tools/task.js');
 
 async function executeAutoMode(startTaskId = null) {
   console.log('🚀 启动自动化执行模式...\n');
@@ -790,25 +790,25 @@ function displayProgress(currentIndex, totalTasks, currentTask) {
 
 ```bash
 # 查看下一个可执行任务
-node .claude-pilot/tools/task.js next
+node .claude/tools/task.js next
 
 # 列出所有任务
-node .claude-pilot/tools/task.js list
+node .claude/tools/task.js list
 
 # 列出待执行任务
-node .claude-pilot/tools/task.js list pending
+node .claude/tools/task.js list pending
 
 # 检查任务依赖
-node .claude-pilot/tools/task.js check T002
+node .claude/tools/task.js check T002
 
 # 更新任务状态
-node .claude-pilot/tools/task.js update T001 completed
+node .claude/tools/task.js update T001 completed
 
 # 查看所有可执行任务
-node .claude-pilot/tools/task.js executable
+node .claude/tools/task.js executable
 
 # 查看帮助
-node .claude-pilot/tools/task.js help
+node .claude/tools/task.js help
 ```
 
 ---

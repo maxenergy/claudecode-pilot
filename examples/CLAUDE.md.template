@@ -36,7 +36,7 @@
 
 #### 前置条件
 - ✅ 项目已通过 `claudecode-gpt init` 初始化
-- ✅ `.claude-pilot/templates/product-owner.md` 存在
+- ✅ `.claude/templates/product-owner.md` 存在
 
 #### 输入参数
 - `[项目描述]` (可选) - 项目的简短描述，如果不提供则进入交互式问答
@@ -44,12 +44,12 @@
 #### 输出文件
 - 📄 `docs/product_requirements.md` - 产品需求文档
 - 📄 `CLAUDE.md` - 更新项目概述部分
-- 📄 `.claude-pilot/context_memory.json` - 更新上下文记忆
+- 📄 `.claude/context_memory.json` - 更新上下文记忆
 
 #### 执行流程
 ```
 1. 立即切换到产品负责人角色
-2. 读取 .claude-pilot/templates/product-owner.md 模板
+2. 读取 .claude/templates/product-owner.md 模板
 3. 将用户提供的 [项目描述] 注入模板变量 {{PROJECT_DESCRIPTION}}
 4. 开始需求收集对话（阶段1）：
    - 提出 5-7 个关键澄清问题
@@ -57,7 +57,7 @@
 5. 生成产品需求文档（阶段2）：
    - 基于回答生成 docs/product_requirements.md
    - 更新本文件（CLAUDE.md）的项目概述部分
-   - 更新 .claude-pilot/context_memory.json
+   - 更新 .claude/context_memory.json
 6. 完成后提示: "✅ 需求收集完成！下一步请运行: /architect"
 ```
 
@@ -114,7 +114,7 @@ Agent:
 #### 执行流程
 ```
 1. 读取 docs/product_requirements.md
-2. 读取 .claude-pilot/templates/architect.md 模板
+2. 读取 .claude/templates/architect.md 模板
 3. 分析需求，提供 2-3 个技术栈方案：
    - 方案A: 快速开发方案（如 Next.js + Supabase）
    - 方案B: 传统稳定方案（如 React + Express + PostgreSQL）
@@ -199,13 +199,13 @@ Agent:
 #### 输出文件
 - 📄 `tasks.md` - 任务列表（人类可读，Markdown格式）
 - 📄 `task_status.json` - 任务状态（机器可读，JSON格式）
-- 📄 `.claude-pilot/tools/task.js` - 任务管理工具（如不存在则创建）
+- 📄 `.claude/tools/task.js` - 任务管理工具（如不存在则创建）
 
 #### 执行流程
 ```
 1. 读取 docs/product_requirements.md
 2. 读取 docs/architecture.md
-3. 读取 .claude-pilot/templates/tech-lead.md 模板
+3. 读取 .claude/templates/tech-lead.md 模板
 4. 分析需求和架构，分解任务：
    - 识别主要功能模块
    - 按类型分类（基础设施/数据层/后端/前端/测试/文档）
@@ -289,7 +289,7 @@ Agent:
 
 **步骤**:
 1. 从 `task_status.json` 读取任务详情
-2. 读取 `.claude-pilot/templates/developer.md` 模板
+2. 读取 `.claude/templates/developer.md` 模板
 3. 设置执行模式为 `manual_mode`
 4. 分析任务需求：
    - 理解功能要求
@@ -580,7 +580,7 @@ Agent:
 
 #### 前置条件
 - ✅ `task_status.json` 必须存在（由 /tech-lead 生成）
-- ✅ `.claude-pilot/tools/task.js` 必须存在（任务管理工具）
+- ✅ `.claude/tools/task.js` 必须存在（任务管理工具）
 
 #### 输入参数
 - `[起始任务ID]` (可选) - 指定从哪个任务开始，如 T001
@@ -619,11 +619,11 @@ Agent:
    - 如果指定了起始任务ID（如 T001），从该任务开始
    - 如果指定了范围（如 T005-T010），只执行该范围
    - 如果未指定，从第一个 pending 任务开始
-3. 读取 .claude-pilot/templates/developer.md 模板
+3. 读取 .claude/templates/developer.md 模板
 4. 设置执行模式为 auto_mode
 5. 使用 task.js 获取可执行任务列表：
 ```javascript
-   const { getAllExecutableTasks } = require('./.claude-pilot/tools/task.js');
+   const { getAllExecutableTasks } = require('./.claude/tools/task.js');
    const executableTasks = getAllExecutableTasks();
    ```
 6. 显示执行计划：
@@ -674,7 +674,7 @@ WHILE (还有待执行任务) DO:
 
   使用 task.js 检查依赖：
 ```javascript
-  const { checkDependencies } = require('./.claude-pilot/tools/task.js');
+  const { checkDependencies } = require('./.claude/tools/task.js');
   const depsOk = checkDependencies(nextTask.id);
   ```
 如果依赖未满足：
@@ -733,7 +733,7 @@ WHILE (还有待执行任务) DO:
 
   使用 task.js 更新状态：
 ```javascript
-  const { updateTaskStatus } = require('./.claude-pilot/tools/task.js');
+  const { updateTaskStatus } = require('./.claude/tools/task.js');
   updateTaskStatus(nextTask.id, 'completed');
   ```
 ┌─────────────────────────────────────────┐
@@ -873,7 +873,7 @@ FAIL tests/unit/auth.service.test.ts
 使用 `task.js` 的依赖检查功能：
 
 ```javascript
-// .claude-pilot/tools/task.js
+// .claude/tools/task.js
 function checkDependencies(taskId) {
   const task = getTaskById(taskId);
   const dependencies = task.dependencies || [];
@@ -943,7 +943,7 @@ function checkDependencies(taskId) {
 #### 执行流程
 ```
 1. 读取任务代码
-2. 读取 .claude-pilot/templates/tester.md 模板
+2. 读取 .claude/templates/tester.md 模板
 3. 制定测试策略（5分钟）
 4. 设计测试用例（10分钟）：
    - 正常场景测试
@@ -988,7 +988,7 @@ function checkDependencies(taskId) {
 #### 执行流程
 ```
 1. 读取任务相关的代码变更（git diff）
-2. 读取 .claude-pilot/templates/reviewer.md 模板
+2. 读取 .claude/templates/reviewer.md 模板
 3. 执行代码审查（15分钟）：
    - 代码质量检查
    - 最佳实践检查
@@ -1037,7 +1037,7 @@ function checkDependencies(taskId) {
    - 错误信息
    - 复现步骤
    - 环境信息
-2. 读取 .claude-pilot/templates/debugger.md 模板
+2. 读取 .claude/templates/debugger.md 模板
 3. 问题复现（10分钟）
 4. 根因分析（15分钟）：
    - 日志调试
@@ -1064,7 +1064,7 @@ function checkDependencies(taskId) {
 1. 读取 task_status.json
 2. 使用 task.js 获取下一个可执行任务：
 ```javascript
-   const { getNextExecutableTask } = require('./.claude-pilot/tools/task.js');
+   const { getNextExecutableTask } = require('./.claude/tools/task.js');
    const nextTask = getNextExecutableTask();
    ```
 3. 筛选 status=pending 且依赖已完成的任务
@@ -1510,7 +1510,7 @@ Agent:
 
 #### 前置条件
 - ✅ `task_status.json` 必须存在（由 /tech-lead 生成）
-- ✅ `.claude-pilot/tools/task.js` 必须存在（任务管理工具）
+- ✅ `.claude/tools/task.js` 必须存在（任务管理工具）
 
 #### 输入参数
 - `[起始任务ID]` (可选) - 指定从哪个任务开始，如 T001
@@ -1549,11 +1549,11 @@ Agent:
    - 如果指定了起始任务ID（如 T001），从该任务开始
    - 如果指定了范围（如 T005-T010），只执行该范围
    - 如果未指定，从第一个 pending 任务开始
-3. 读取 .claude-pilot/templates/developer.md 模板
+3. 读取 .claude/templates/developer.md 模板
 4. 设置执行模式为 auto_mode
 5. 使用 task.js 获取可执行任务列表：
    ```javascript
-   const { getAllExecutableTasks } = require('./.claude-pilot/tools/task.js');
+   const { getAllExecutableTasks } = require('./.claude/tools/task.js');
    const executableTasks = getAllExecutableTasks();
    ```
 6. 显示执行计划：
@@ -1604,7 +1604,7 @@ WHILE (还有待执行任务) DO:
 
   使用 task.js 检查依赖：
   ```javascript
-  const { checkDependencies } = require('./.claude-pilot/tools/task.js');
+  const { checkDependencies } = require('./.claude/tools/task.js');
   const depsOk = checkDependencies(nextTask.id);
   ```
 
@@ -1666,7 +1666,7 @@ WHILE (还有待执行任务) DO:
 
   使用 task.js 更新状态：
   ```javascript
-  const { updateTaskStatus } = require('./.claude-pilot/tools/task.js');
+  const { updateTaskStatus } = require('./.claude/tools/task.js');
   updateTaskStatus(nextTask.id, 'completed');
   ```
 
@@ -1810,7 +1810,7 @@ FAIL tests/unit/auth.service.test.ts
 使用 `task.js` 的依赖检查功能：
 
 ```javascript
-// .claude-pilot/tools/task.js
+// .claude/tools/task.js
 function checkDependencies(taskId) {
   const task = getTaskById(taskId);
   const dependencies = task.dependencies || [];
@@ -1880,7 +1880,7 @@ function checkDependencies(taskId) {
 #### 执行流程
 ```
 1. 读取任务代码
-2. 读取 .claude-pilot/templates/tester.md 模板
+2. 读取 .claude/templates/tester.md 模板
 3. 制定测试策略（5分钟）
 4. 设计测试用例（10分钟）：
    - 正常场景测试
@@ -1925,7 +1925,7 @@ function checkDependencies(taskId) {
 #### 执行流程
 ```
 1. 读取任务相关的代码变更（git diff）
-2. 读取 .claude-pilot/templates/reviewer.md 模板
+2. 读取 .claude/templates/reviewer.md 模板
 3. 执行代码审查（15分钟）：
    - 代码质量检查
    - 最佳实践检查
@@ -1974,7 +1974,7 @@ function checkDependencies(taskId) {
    - 错误信息
    - 复现步骤
    - 环境信息
-2. 读取 .claude-pilot/templates/debugger.md 模板
+2. 读取 .claude/templates/debugger.md 模板
 3. 问题复现（10分钟）
 4. 根因分析（15分钟）：
    - 日志调试
@@ -2001,7 +2001,7 @@ function checkDependencies(taskId) {
 1. 读取 task_status.json
 2. 使用 task.js 获取下一个可执行任务：
    ```javascript
-   const { getNextExecutableTask } = require('./.claude-pilot/tools/task.js');
+   const { getNextExecutableTask } = require('./.claude/tools/task.js');
    const nextTask = getNextExecutableTask();
    ```
 3. 筛选 status=pending 且依赖已完成的任务
@@ -2209,7 +2209,7 @@ function checkDependencies(taskId) {
 
 ```
 {{PROJECT_NAME}}/
-├── .claude-pilot/              # Agent 系统核心
+├── .claude/              # Agent 系统核心
 │   ├── agents/
 │   │   └── agents.json        # Agent 配置
 │   ├── templates/             # 提示词模板
@@ -2258,7 +2258,7 @@ function checkDependencies(taskId) {
 - 需求文档: `docs/product_requirements.md`
 - 架构文档: `docs/architecture.md`
 - 任务列表: `tasks.md`
-- 上下文记忆: `.claude-pilot/context_memory.json`
+- 上下文记忆: `.claude/context_memory.json`
 
 ---
 

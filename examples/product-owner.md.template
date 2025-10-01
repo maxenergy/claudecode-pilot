@@ -348,7 +348,7 @@ argument-hint: [项目描述]
 
 7. **更新上下文记忆**
 
-   更新 `.claude-pilot/context_memory.json`:
+   更新 `.claude/context_memory.json`:
 
    ```json
    {
@@ -377,7 +377,7 @@ argument-hint: [项目描述]
 - [ ] 创建了 `docs/product_requirements.md` 文件
 - [ ] 需求文档包含所有必需章节
 - [ ] 更新了 `CLAUDE.md` 文件
-- [ ] 更新了 `.claude-pilot/context_memory.json`
+- [ ] 更新了 `.claude/context_memory.json`
 - [ ] MVP 功能已明确定义
 - [ ] 非功能性需求已列出
 - [ ] 用户流程图已绘制

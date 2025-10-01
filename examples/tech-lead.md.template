@@ -344,7 +344,15 @@ T001 → T002 → T003 → T004 → T005 → T006
 ---
 ```
 
-### 2. 生成 `task_status.json`
+### 2. 生成任务状态文件
+
+**重要**: 根据任务数量自动选择文件结构：
+
+#### 选项A: 扁平结构（任务数 < 50）
+
+适用于小型项目，所有任务存储在单个文件中。
+
+生成 `task_status.json`:
 
 ```json
 {
@@ -400,6 +408,109 @@ T001 → T002 → T003 → T004 → T005 → T006
 }
 ```
 
+#### 选项B: 分层结构（任务数 >= 50）
+
+适用于大型项目，按功能模块分组存储，提升性能和可维护性。
+
+**1. 生成主索引文件 `task_status.json`**:
+
+```json
+{
+  "project": "{{PROJECT_NAME}}",
+  "created_at": "{{DATE}}",
+  "updated_at": "{{DATE}}",
+  "total_tasks": 85,
+  "task_groups": [
+    {
+      "id": "infrastructure",
+      "name": "基础设施",
+      "file": ".claude/tasks/infrastructure.json",
+      "task_count": 15,
+      "status": "not_started",
+      "priority": "高"
+    },
+    {
+      "id": "frontend",
+      "name": "前端开发",
+      "file": ".claude/tasks/frontend.json",
+      "task_count": 30,
+      "status": "not_started",
+      "priority": "高"
+    },
+    {
+      "id": "backend",
+      "name": "后端开发",
+      "file": ".claude/tasks/backend.json",
+      "task_count": 25,
+      "status": "not_started",
+      "priority": "高"
+    },
+    {
+      "id": "testing",
+      "name": "测试",
+      "file": ".claude/tasks/testing.json",
+      "task_count": 10,
+      "status": "not_started",
+      "priority": "中"
+    },
+    {
+      "id": "documentation",
+      "name": "文档",
+      "file": ".claude/tasks/documentation.json",
+      "task_count": 5,
+      "status": "not_started",
+      "priority": "低"
+    }
+  ]
+}
+```
+
+**2. 生成任务组文件** (例如 `.claude/tasks/infrastructure.json`):
+
+```json
+{
+  "group_id": "infrastructure",
+  "group_name": "基础设施",
+  "tasks": [
+    {
+      "id": "T001",
+      "group_id": "infrastructure",
+      "title": "搭建项目基础结构",
+      "description": "创建前后端项目结构，配置开发环境，安装基础依赖",
+      "status": "pending",
+      "priority": "高",
+      "estimated_hours": 2,
+      "actual_hours": 0,
+      "dependencies": [],
+      "acceptance_criteria": [
+        "前端项目可以启动（npm run dev）",
+        "后端项目可以启动（npm run dev）",
+        "代码格式化工具配置完成",
+        "Git 仓库初始化完成"
+      ],
+      "assigned_to": "Developer",
+      "created_at": "{{DATE}}",
+      "updated_at": "{{DATE}}",
+      "completed_at": null
+    }
+  ],
+  "updated_at": "{{DATE}}"
+}
+```
+
+**3. 创建 `.claude/tasks/` 目录**:
+
+```bash
+mkdir -p .claude/tasks
+```
+
+**任务组划分建议**:
+- 🏗️ **infrastructure**: 项目配置、工具设置、CI/CD
+- 🎨 **frontend**: 前端组件、页面、样式
+- ⚙️ **backend**: 后端 API、服务、数据库
+- 🧪 **testing**: 单元测试、集成测试、E2E测试
+- 📖 **documentation**: API文档、用户指南、开发文档
+
 ---
 
 ## ✅ 完成检查清单
@@ -413,7 +524,9 @@ T001 → T002 → T003 → T004 → T005 → T006
 - [ ] 优先级合理
 - [ ] 工时估算合理
 - [ ] tasks.md 文档完整
-- [ ] task_status.json 格式正确
+- [ ] 任务状态文件格式正确（扁平或分层结构）
+- [ ] 如使用分层结构，`.claude/tasks/` 目录已创建
+- [ ] 如使用分层结构，所有任务组文件已生成
 - [ ] 里程碑规划清晰
 
 ---
