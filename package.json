@@ -1,0 +1,39 @@
+{
+  "name": "claudecode-gpt",
+  "version": "1.0.0",
+  "description": "Claude Code GPT-Pilot - AI-powered software development lifecycle management system",
+  "main": "lib/index.js",
+  "bin": {
+    "claudecode-gpt": "./bin/claudecode-gpt.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint .",
+    "start": "node bin/claudecode-gpt.js"
+  },
+  "keywords": [
+    "claude",
+    "gpt-pilot",
+    "ai",
+    "development",
+    "automation",
+    "tdd",
+    "agent"
+  ],
+  "author": "Claude Code GPT-Pilot",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "dependencies": {
+    "commander": "^14.0.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/claudecode-gpt.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/claudecode-gpt/issues"
+  },
+  "homepage": "https://github.com/yourusername/claudecode-gpt#readme"
+}

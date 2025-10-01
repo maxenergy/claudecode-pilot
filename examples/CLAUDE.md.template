@@ -1,0 +1,442 @@
+# {{PROJECT_NAME}}
+
+> 🤖 **Claude Code GPT-Pilot 集成系统**  
+> 本项目使用智能 Agent 系统进行全生命周期开发管理
+
+---
+
+## 🎯 项目概述
+
+**项目名称**: {{PROJECT_NAME}}  
+**创建时间**: {{DATE}}  
+**当前阶段**: 初始化  
+**最后更新**: {{DATE}}
+
+---
+
+## 🚀 斜杠命令系统
+
+### 命令识别规则
+
+**当用户在 Claude Code 中输入以 `/` 开头的命令时，请按以下规则处理：**
+
+#### 1️⃣ `/product-owner [项目描述]`
+**角色**: 🎯 产品负责人  
+**触发条件**: 用户输入 `/product-owner` 或 `/po`  
+**执行流程**:
+```
+1. 立即切换到产品负责人角色
+2. 读取 .claude-pilot/templates/product-owner.md 模板
+3. 将用户提供的 [项目描述] 注入模板变量 {{PROJECT_DESCRIPTION}}
+4. 开始需求收集对话：
+   - 提出 5-7 个关键澄清问题
+   - 等待用户在当前会话中回答
+   - 基于回答生成 docs/product_requirements.md
+   - 更新本文件（CLAUDE.md）的项目概述部分
+   - 更新 .claude-pilot/context_memory.json
+5. 完成后提示: "需求收集完成！下一步请运行: /architect"
+```
+
+#### 2️⃣ `/architect`
+**角色**: 🏗️ 软件架构师  
+**触发条件**: 用户输入 `/architect` 或 `/arch`  
+**前置条件**: docs/product_requirements.md 必须存在  
+**执行流程**:
+```
+1. 读取 docs/product_requirements.md
+2. 读取 .claude-pilot/templates/architect.md 模板
+3. 提供 2-3 个技术栈方案
+4. 等待用户选择方案
+5. 基于选择执行：
+   - 创建 docs/architecture.md
+   - 生成 package.json, tsconfig.json 等配置文件
+   - 创建项目目录结构
+   - 安装依赖（npm install）
+   - 更新 CLAUDE.md 的技术栈部分
+6. 完成后提示: "架构设计完成！下一步请运行: /tech-lead"
+```
+
+#### 3️⃣ `/tech-lead`
+**角色**: 📋 技术主管  
+**触发条件**: 用户输入 `/tech-lead` 或 `/tl`  
+**前置条件**: docs/product_requirements.md 和 docs/architecture.md 必须存在  
+**执行流程**:
+```
+1. 读取 docs/product_requirements.md
+2. 读取 docs/architecture.md
+3. 读取 .claude-pilot/templates/tech-lead.md 模板
+4. 分析需求和架构，分解任务
+5. 生成：
+   - tasks.md（人类可读）
+   - task_status.json（机器可读）
+   - 任务依赖关系图（Mermaid）
+6. 完成后提示: "任务分解完成！查看下一个任务: /next-task"
+```
+
+#### 4️⃣ `/developer [任务ID]` - 单任务模式
+**角色**: 💻 开发工程师
+**触发条件**: 用户输入 `/developer T001` 或 `/dev T001`
+**前置条件**: task_status.json 必须存在，且指定任务状态为 pending
+**模式**: 单任务模式 (manual_mode)
+**执行流程**:
+```
+1. 从 task_status.json 读取任务详情
+2. 读取 .claude-pilot/templates/developer.md 模板
+3. 设置执行模式为 manual_mode
+4. 执行 TDD 5阶段流程：
+   【阶段1】规划（不编码）
+   - 列出涉及文件
+   - 设计接口
+   - 生成实现计划
+   - 等待用户确认
+
+   【阶段2】测试先行
+   - 编写测试用例
+   - 运行测试确认失败
+   - 等待用户确认
+
+   【阶段3】最小实现
+   - 编写代码让测试通过
+   - 逐步运行测试
+
+   【阶段4】重构优化
+   - 改进代码结构
+   - 运行 ESLint
+
+   【阶段5】验收检查
+   - 运行所有测试
+   - 检查覆盖率
+   - 生成提交信息
+   - 执行 git commit
+5. 更新 task_status.json 中任务状态为 completed
+6. 停止并等待用户确认
+7. 显示完成提示:
+   "✅ 任务 T001 完成！
+    📊 下一个任务: T002 - [任务标题]
+
+    选择操作:
+    - /developer T002  (手动执行下一个任务)
+    - /reviewer T001   (代码审查当前任务)
+    - /next-task       (查看下一个任务详情)"
+```
+
+#### 4️⃣-A `/developer-auto [起始任务ID]` - 自动化批量执行模式
+**角色**: 💻 开发工程师（自动化模式）
+**触发条件**:
+- 用户输入 `/developer-auto T001` 或 `/dev-auto T001` - 从 T001 开始自动执行
+- 用户输入 `/developer-auto` - 从第一个 pending 任务开始
+- 用户输入 `/developer-auto T005-T010` - 只执行 T005 到 T010
+**前置条件**: task_status.json 必须存在
+**模式**: 自动化模式 (auto_mode)
+**执行流程**:
+```
+1. 读取 task_status.json
+2. 确定任务执行范围：
+   - 如果指定了起始任务ID（如 T001），从该任务开始
+   - 如果指定了范围（如 T005-T010），只执行该范围
+   - 如果未指定，从第一个 pending 任务开始
+3. 读取 .claude-pilot/templates/developer.md 模板
+4. 设置执行模式为 auto_mode
+5. 进入自动化循环：
+
+   WHILE (还有待执行任务) DO:
+
+     a. 获取下一个可执行任务（状态=pending 且依赖已完成）
+
+     b. 如果没有可执行任务：
+        - 检查是否所有任务都已完成 → 显示成功消息并退出
+        - 检查是否有依赖未满足 → 显示等待消息并退出
+        - 其他情况 → 显示错误并退出
+
+     c. 显示进度信息：
+        "🔄 自动化执行进度: [当前任务序号]/[总任务数]
+         📋 当前任务: T00X - [任务标题]
+         ⏱️  预计时间: X小时"
+
+     d. 执行 TDD 5阶段流程（自动化版本）：
+        【阶段1】规划（不编码）
+        - 列出涉及文件
+        - 设计接口
+        - 生成实现计划
+        - ⚠️ 自动继续（不等待用户确认）
+
+        【阶段2】测试先行
+        - 编写测试用例
+        - 运行测试确认失败
+        - ⚠️ 自动继续（不等待用户确认）
+
+        【阶段3】最小实现
+        - 编写代码让测试通过
+        - 逐步运行测试
+        - ❌ 如果测试失败 → 跳转到错误处理
+
+        【阶段4】重构优化
+        - 改进代码结构
+        - 运行 ESLint
+        - ❌ 如果 lint 失败 → 跳转到错误处理
+
+        【阶段5】验收检查
+        - 运行所有测试
+        - ❌ 如果测试失败 → 跳转到错误处理
+        - 检查覆盖率
+        - ❌ 如果覆盖率不足 → 跳转到错误处理
+        - 生成提交信息
+        - 执行 git commit
+
+     e. 更新 task_status.json 中任务状态为 completed
+
+     f. 显示任务完成信息：
+        "✅ T00X 完成 | 测试通过 | 已提交"
+
+     g. 继续下一个任务（无需等待）
+
+   END WHILE
+
+6. 所有任务完成后显示总结：
+   "🎉 自动化执行完成！
+
+    📊 执行统计:
+    - 总任务数: X
+    - 成功完成: X
+    - 总耗时: X小时
+    - 代码提交: X次
+
+    📝 下一步建议:
+    - /task-list  (查看所有任务状态)
+    - /reviewer T001  (开始代码审查)
+    - /status  (查看项目整体状态)"
+
+【错误处理流程】:
+当任何阶段出现错误时：
+1. 立即停止自动化执行
+2. 保存当前进度到 task_status.json
+3. 显示详细错误信息：
+   "❌ 自动化执行在任务 T00X 失败
+
+    📋 失败任务: T00X - [任务标题]
+    🔴 失败阶段: [阶段名称]
+    📄 错误信息:
+    [详细错误日志]
+
+    📊 执行统计:
+    - 已完成: X/Y 任务
+    - 失败位置: T00X
+
+    🔧 建议操作:
+    1. 检查错误日志
+    2. 手动修复问题
+    3. 运行 /developer T00X 重新执行该任务
+    4. 或运行 /debugger 进入调试模式"
+4. 退出自动化模式
+
+【依赖检查】:
+- 在执行每个任务前，检查其 dependencies 字段
+- 确保所有依赖任务的状态都是 completed
+- 如果依赖未满足，跳过该任务，继续检查下一个
+- 如果所有剩余任务都因依赖未满足而无法执行，显示警告并退出
+```
+
+#### 5️⃣ `/reviewer [任务ID]`
+**角色**: 👀 代码审查员  
+**触发条件**: 用户输入 `/reviewer T001` 或 `/review T001`  
+**执行流程**:
+```
+1. 读取任务相关的代码变更
+2. 读取 .claude-pilot/templates/reviewer.md 模板
+3. 执行代码审查：
+   - 功能正确性
+   - 代码质量
+   - 测试覆盖
+   - 架构一致性
+4. 生成审查报告（PASS/REVISE）
+5. 如果 PASS：
+   - 生成符合 Conventional Commits 的提交信息
+   - 执行 git commit
+   - 更新任务状态为 completed
+6. 完成后提示: "审查完成！下一个任务: /next-task"
+```
+
+#### 6️⃣ `/tester [任务ID]`
+**角色**: 🧪 测试工程师  
+**触发条件**: 用户输入 `/tester T001` 或 `/test T001`  
+**执行流程**:
+```
+1. 读取任务代码
+2. 读取 .claude-pilot/templates/tester.md 模板
+3. 编写完整测试套件：
+   - 单元测试
+   - 集成测试
+   - E2E 测试（如适用）
+4. 确保测试覆盖率 > 80%
+5. 生成测试报告
+```
+
+#### 7️⃣ `/debugger [错误描述]`
+**角色**: 🔧 调试专家  
+**触发条件**: 用户输入 `/debugger` 或 `/debug`  
+**执行流程**:
+```
+1. 读取 .claude-pilot/templates/debugger.md 模板
+2. 执行递归调试策略（最多5层）：
+   - 第1层：现象分析
+   - 第2层：根因定位
+   - 第3层：尝试修复
+   - 第4层：深度诊断
+   - 第5层：人工介入
+3. 提供诊断报告和修复方案
+4. 实施修复并验证
+```
+
+#### 8️⃣ 辅助命令
+
+**`/next-task`** - 显示下一个可执行任务
+```
+1. 读取 task_status.json
+2. 筛选 status=pending 且依赖已完成的任务
+3. 按优先级排序
+4. 显示任务详情
+5. 提示: "/developer [任务ID] 开始开发"
+```
+
+**`/task-list`** - 显示所有任务列表
+```
+1. 读取 task_status.json
+2. 按状态分组显示
+3. 显示统计信息
+```
+
+**`/status`** - 显示项目当前状态
+```
+1. 读取所有上下文文件
+2. 显示：
+   - 当前阶段
+   - 已完成的 Agent
+   - 任务进度
+   - 下一步建议
+```
+
+---
+
+## 📁 项目结构
+
+```
+{{PROJECT_NAME}}/
+├── .claude-pilot/              # Agent 系统核心
+│   ├── agents/
+│   │   └── agents.json        # Agent 配置
+│   ├── templates/             # 提示词模板
+│   │   ├── product-owner.md
+│   │   ├── architect.md
+│   │   ├── tech-lead.md
+│   │   ├── developer.md
+│   │   ├── tester.md
+│   │   ├── reviewer.md
+│   │   └── debugger.md
+│   ├── context_memory.json    # 上下文记忆
+│   └── README.md              # 系统说明
+│
+├── docs/                      # 文档目录
+│   ├── product_requirements.md
+│   └── architecture.md
+│
+├── src/                       # 源代码
+├── tests/                     # 测试文件
+├── scripts/                   # 工具脚本
+│
+├── tasks.md                   # 任务列表（人类可读）
+├── task_status.json           # 任务状态（机器可读）
+├── CLAUDE.md                  # 本文件
+└── package.json               # 项目配置
+```
+
+---
+
+## 🛠️ 技术栈
+
+> 将在 `/architect` 阶段确定
+
+---
+
+## 📊 开发进度
+
+**当前阶段**: 初始化  
+**已完成 Agent**: 无  
+**任务进度**: 0/0
+
+---
+
+## 🔗 重要链接
+
+- 需求文档: `docs/product_requirements.md`
+- 架构文档: `docs/architecture.md`
+- 任务列表: `tasks.md`
+- 上下文记忆: `.claude-pilot/context_memory.json`
+
+---
+
+## 📝 使用说明
+
+### 快速开始
+
+1. **初始化项目**（已完成）
+   ```bash
+   claudecode-gpt init
+   ```
+
+2. **启动 Claude Code**
+   ```bash
+   claude
+   ```
+
+3. **开始需求收集**
+   ```
+   /product-owner "我要开发一个番茄时钟应用"
+   ```
+
+4. **按提示依次执行后续 Agent**
+   ```
+   /architect
+   /tech-lead
+   /developer T001
+   /reviewer T001
+   ```
+
+### 工作流程
+
+```
+/product-owner → /architect → /tech-lead → /developer → /reviewer
+                                    ↑                         ↓
+                                    └─────── /next-task ──────┘
+```
+
+### 注意事项
+
+- ⚠️ 每个 Agent 都有前置条件，请按顺序执行
+- ⚠️ 使用 `/status` 查看当前可执行的命令
+- ⚠️ 所有文档自动生成，请勿手动编辑
+- ⚠️ 任务状态由系统自动管理
+
+---
+
+## 🤖 Agent 系统说明
+
+本项目使用 **Claude Code GPT-Pilot 集成系统**，通过智能 Agent 实现全生命周期开发管理。
+
+### 核心特性
+
+✅ **7个专业 Agent** - 覆盖需求到部署全流程  
+✅ **斜杠命令** - 在 Claude Code 中直接使用  
+✅ **TDD 强制** - 测试驱动开发流程  
+✅ **自动文档** - 自动生成和更新文档  
+✅ **上下文连续** - Agent 间共享项目状态  
+
+### 系统版本
+
+- **claudecode-gpt**: v1.0.0
+- **Agent 系统**: v2.0.0
+- **最后更新**: {{DATE}}
+
+---
+
+**🎉 开始你的开发之旅吧！输入 `/product-owner "你的项目描述"` 开始！**
+
