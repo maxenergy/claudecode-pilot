@@ -42,15 +42,24 @@ argument-hint: [任务ID] | auto [起始任务ID]
 **首先检测执行模式**:
 
 ```bash
-# 检测是否为自动模式
-if [[ "$1" == "auto" ]] || [[ "$2" == "auto" ]]; then
+# 检测执行模式
+if [[ "$1" == "yolo" ]] || [[ "$2" == "yolo" ]]; then
+  EXECUTION_MODE="yolo_mode"
+  AUTO_CONFIRM="yes"
+  YOLO_MODE="yes"
+  echo "🚀 YOLO 模式已激活 - 完全自动化，包括自动提交和推送"
+  echo "⚠️  警告: 此模式将自动执行所有操作，风险较高"
+  echo ""
+elif [[ "$1" == "auto" ]] || [[ "$2" == "auto" ]]; then
   EXECUTION_MODE="auto_mode"
   AUTO_CONFIRM="yes"
+  YOLO_MODE="no"
   echo "🤖 自动化模式已激活 - 将自动执行所有步骤"
   echo ""
 else
   EXECUTION_MODE="manual_mode"
   AUTO_CONFIRM="no"
+  YOLO_MODE="no"
   echo "👤 手动模式已激活 - 每个阶段需要确认"
   echo ""
 fi
@@ -65,6 +74,7 @@ fi
 - 每个阶段等待用户确认
 - 完成后停止并显示下一步建议
 - 适合需要人工监督的复杂任务
+- 风险等级: 🟢 低
 
 ### 模式2: 自动化模式 (auto_mode)
 
@@ -78,6 +88,26 @@ fi
 - 遇到错误立即停止
 - 显示整体进度
 - 适合批量执行简单任务
+- 风险等级: 🟡 中
+
+### 模式3: YOLO 模式 (yolo_mode) 🚀
+
+**触发**: `/developer yolo T001` 或 `/developer T001 yolo`
+
+**特点**:
+- 完全自动化，无任何确认
+- 自动提交代码到 Git
+- 自动推送到远程仓库（如果配置）
+- 自动继续下一个任务
+- 遇到错误立即停止
+- 适合批量执行大量简单任务
+- 风险等级: 🔴 高
+
+**⚠️ YOLO 模式警告**:
+- 会自动提交和推送代码
+- 可能会提交有问题的代码
+- 建议在测试分支上使用
+- 使用前请确保有完整备份
 
 ---
 
@@ -407,8 +437,40 @@ handle_error() {
 
 5. **执行 Git 提交**
    ```bash
+   # 添加所有更改
    git add .
-   git commit -m "[提交信息]"
+
+   # 生成提交信息
+   COMMIT_MSG="feat($TASK_ID): implement task functionality
+
+- Add implementation code
+- Add unit tests with coverage > 80%
+- All tests passing
+
+Closes #$TASK_ID"
+
+   # 提交代码
+   git commit -m "$COMMIT_MSG"
+   echo "✅ 代码已提交到本地仓库"
+
+   # YOLO 模式: 自动推送到远程仓库
+   if [ "$YOLO_MODE" = "yes" ]; then
+     echo ""
+     echo "🚀 YOLO 模式: 自动推送到远程仓库..."
+
+     # 获取当前分支
+     CURRENT_BRANCH=$(git branch --show-current)
+
+     # 推送到远程
+     if git push origin "$CURRENT_BRANCH" 2>/dev/null; then
+       echo "✅ 代码已推送到远程仓库 (分支: $CURRENT_BRANCH)"
+     else
+       echo "⚠️  推送失败（可能没有配置远程仓库或网络问题）"
+       echo "   代码已保存在本地，可以稍后手动推送"
+     fi
+   else
+     echo "💡 提示: 代码已提交到本地，可以稍后推送到远程仓库"
+   fi
    ```
 
 6. **更新任务状态**
