@@ -39,6 +39,23 @@ argument-hint: [任务ID] | auto [起始任务ID]
 
 ## 🔄 执行模式识别
 
+**首先检测执行模式**:
+
+```bash
+# 检测是否为自动模式
+if [[ "$1" == "auto" ]] || [[ "$2" == "auto" ]]; then
+  EXECUTION_MODE="auto_mode"
+  AUTO_CONFIRM="yes"
+  echo "🤖 自动化模式已激活 - 将自动执行所有步骤"
+  echo ""
+else
+  EXECUTION_MODE="manual_mode"
+  AUTO_CONFIRM="no"
+  echo "👤 手动模式已激活 - 每个阶段需要确认"
+  echo ""
+fi
+```
+
 ### 模式1: 单任务模式 (manual_mode)
 
 **触发**: `/developer T001`
@@ -51,7 +68,7 @@ argument-hint: [任务ID] | auto [起始任务ID]
 
 ### 模式2: 自动化模式 (auto_mode)
 
-**触发**: `/developer-auto T001` 或 `/developer-auto`
+**触发**: `/developer auto T001` 或 `/developer T001 auto`
 
 **特点**:
 - 连续执行多个任务
@@ -61,6 +78,58 @@ argument-hint: [任务ID] | auto [起始任务ID]
 - 遇到错误立即停止
 - 显示整体进度
 - 适合批量执行简单任务
+
+---
+
+## 🛠️ 辅助函数
+
+**创建确认函数**（在 auto 模式下自动跳过）:
+
+```bash
+# 智能确认函数 - auto 模式下自动跳过
+confirm_step() {
+  local message="$1"
+  local default_action="${2:-continue}"
+
+  if [ "$AUTO_CONFIRM" = "yes" ]; then
+    echo "✅ [自动确认] $message"
+    return 0
+  else
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "$message"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    read -p "继续? (y/N): " confirm
+    if [ "$confirm" != "y" ] && [ "$confirm" != "Y" ]; then
+      echo "❌ 操作已取消"
+      exit 1
+    fi
+  fi
+}
+
+# 错误处理函数 - 两种模式都会停止
+handle_error() {
+  local error_message="$1"
+  local task_id="$2"
+
+  echo ""
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo "❌ 错误: $error_message"
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo ""
+
+  if [ "$AUTO_CONFIRM" = "yes" ]; then
+    echo "🤖 自动模式已暂停"
+    echo ""
+    echo "💡 修复建议:"
+    echo "1. 查看错误信息并修复问题"
+    echo "2. 重新运行: /developer $task_id"
+    echo "3. 或继续自动模式: /developer auto $task_id"
+  fi
+
+  exit 1
+}
+```
 
 ---
 
@@ -141,9 +210,11 @@ argument-hint: [任务ID] | auto [起始任务ID]
    - 内存泄漏风险
    ```
 
-5. **等待确认**
-   - **manual_mode**: 显示计划，等待用户输入 "继续" 或 "修改计划"
-   - **auto_mode**: 自动继续，不等待
+5. **确认实现计划**
+
+   ```bash
+   confirm_step "📋 实现计划已生成，准备开始编写测试"
+   ```
 
 ---
 
@@ -200,9 +271,11 @@ argument-hint: [任务ID] | auto [起始任务ID]
    ⚠️ 测试已创建，当前状态：全部失败（预期行为）
    ```
 
-5. **等待确认**
-   - **manual_mode**: 等待用户确认测试失败
-   - **auto_mode**: 自动继续
+5. **确认测试失败**
+
+   ```bash
+   confirm_step "⚠️ 测试已创建并确认失败（符合TDD流程），准备开始实现功能"
+   ```
 
 ---
 
@@ -227,12 +300,18 @@ argument-hint: [任务ID] | auto [起始任务ID]
    ```
 
 3. **错误处理**
-   - **manual_mode**: 如果测试失败，显示错误并等待用户修复
-   - **auto_mode**: 如果测试失败，立即停止并报告错误
+
+   ```bash
+   # 运行测试
+   if ! npm test; then
+     handle_error "测试失败，请检查实现代码" "$TASK_ID"
+   fi
+   ```
 
 4. **确认所有测试通过**
-   ```
-   ✅ 所有测试通过
+   ```bash
+   echo "✅ 所有测试通过"
+   confirm_step "✅ 功能实现完成，所有测试通过，准备进行代码重构"
    ```
 
 ---
@@ -251,15 +330,19 @@ argument-hint: [任务ID] | auto [起始任务ID]
 
 2. **运行 ESLint**
    ```bash
-   npm run lint
+   if ! npm run lint; then
+     handle_error "代码规范检查失败，请修复 ESLint 错误" "$TASK_ID"
+   fi
+   echo "✅ 代码规范检查通过"
    ```
-   
-   - **manual_mode**: 如果有错误，显示并等待修复
-   - **auto_mode**: 如果有错误，立即停止并报告
 
 3. **确保测试仍然通过**
    ```bash
-   npm test
+   if ! npm test; then
+     handle_error "重构后测试失败，请检查代码" "$TASK_ID"
+   fi
+   echo "✅ 重构后测试仍然通过"
+   confirm_step "✅ 代码重构完成，准备进行最终验收"
    ```
 
 4. **检查代码质量**
@@ -277,21 +360,26 @@ argument-hint: [任务ID] | auto [起始任务ID]
 
 1. **运行所有测试**
    ```bash
-   npm test
+   if ! npm test; then
+     handle_error "最终测试失败" "$TASK_ID"
+   fi
+   echo "✅ 所有测试通过"
    ```
-   
-   - **manual_mode**: 显示测试结果，等待确认
-   - **auto_mode**: 如果失败，立即停止并报告
 
 2. **检查测试覆盖率**
    ```bash
+   # 运行覆盖率检查
    npm run test:coverage
+
+   # 提取覆盖率（示例，实际需要根据项目调整）
+   COVERAGE=$(npm run test:coverage 2>&1 | grep -oP 'All files.*?\K\d+' | head -1)
+
+   if [ "$COVERAGE" -lt 80 ]; then
+     handle_error "测试覆盖率不足: ${COVERAGE}% (要求 > 80%)" "$TASK_ID"
+   fi
+
+   echo "✅ 测试覆盖率: ${COVERAGE}% (符合要求)"
    ```
-   
-   要求：覆盖率 > 80%
-   
-   - **manual_mode**: 显示覆盖率，如果不足提示补充测试
-   - **auto_mode**: 如果不足，立即停止并报告
 
 3. **验证所有验收标准**
    
