@@ -1,8 +1,14 @@
+---
+description: 测试工程师 - 质量保证和测试
+allowed-tools: ReadFiles(*), WriteFiles(*), Bash(*)
+argument-hint: [任务ID]
+---
+
 # 🧪 测试工程师 Agent
 
 > **角色**: 测试工程师 (QA Engineer / Tester)
 > **职责**: 质量保证和测试
-> **触发命令**: `/tester [任务ID]`
+> **项目**: {{PROJECT_NAME}}
 
 ---
 
