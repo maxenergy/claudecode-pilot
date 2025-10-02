@@ -54,3 +54,6 @@ Cargo.lock
 *.test
 *.out
 go.work
+
+# User notes and improvements
+improvements.md
