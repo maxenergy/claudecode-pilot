@@ -41,35 +41,42 @@ argument-hint: [--force]
 1. **检查文档是否存在**
 
    ```bash
+   # 检查任务文档
    if [ ! -f docs/tasks.md ]; then
-     echo "❌ 错误: 任务文档不存在"
-     echo "请先运行 /tech-lead 创建任务分解"
+     echo "❌ 错误: 任务文档不存在，请先运行 /tech-lead 创建任务分解"
      exit 1
    fi
-   
+
+   # 检查需求文档
    if [ ! -f docs/product_requirements.md ]; then
      echo "❌ 错误: 需求文档不存在"
      exit 1
    fi
-   
+
+   # 检查架构文档
    if [ ! -f docs/architecture.md ]; then
      echo "❌ 错误: 架构文档不存在"
      exit 1
    fi
-   
+
    echo "✅ 所有依赖文档存在"
    ```
 
-2. **检测手动修改**
+2. **显示当前状态**
 
    ```bash
    echo ""
-   echo "🔍 检测手动修改..."
-   
-   if [ -f .claude/tools/doc-manager.js ]; then
-     node .claude/tools/doc-manager.js detect-changes docs/tasks.md
-   else
-     echo "⚠️  警告: doc-manager.js 不存在，跳过变更检测"
+   echo "🔍 当前任务文档状态..."
+   echo "📄 文件: docs/tasks.md"
+
+   # 显示文件修改时间
+   if [ -f docs/tasks.md ]; then
+     echo "📅 最后修改: $(stat -c %y docs/tasks.md 2>/dev/null || stat -f %Sm docs/tasks.md 2>/dev/null)"
+   fi
+
+   # 显示任务状态（如果存在）
+   if [ -f task_status.json ]; then
+     echo "📊 任务状态文件: task_status.json"
    fi
    ```
 
@@ -78,23 +85,25 @@ argument-hint: [--force]
    ```bash
    echo ""
    echo "💾 创建备份..."
-   
-   if [ -f .claude/tools/doc-manager.js ]; then
-     node .claude/tools/doc-manager.js backup docs/tasks.md
-     
-     if [ -f task_status.json ]; then
-       cp task_status.json .claude/backups/task_status_$(date +%Y%m%d_%H%M%S).json
-       echo "✅ 备份 task_status.json"
-     fi
-   else
-     # 手动备份
-     mkdir -p .claude/backups
-     cp docs/tasks.md .claude/backups/tasks_$(date +%Y%m%d_%H%M%S).md
-     echo "✅ 手动备份完成"
+
+   # 创建备份目录
+   mkdir -p .claude/backups
+
+   # 备份任务文档
+   TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+   cp docs/tasks.md .claude/backups/tasks_${TIMESTAMP}.md
+   echo "✅ 已备份 tasks.md"
+
+   # 备份状态文件（如果存在）
+   if [ -f task_status.json ]; then
+     cp task_status.json .claude/backups/task_status_${TIMESTAMP}.json
+     echo "✅ 已备份 task_status.json"
    fi
+
+   echo "📁 备份位置: .claude/backups/"
    ```
 
-4. **用户确认**
+4. **显示准备信息**
 
    ```bash
    echo ""
@@ -102,20 +111,14 @@ argument-hint: [--force]
    echo "⚠️  准备重新生成任务分解"
    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
    echo ""
-   echo "这将会:"
+   echo "📋 将执行以下操作:"
    echo "  1. 重新分析需求和架构文档"
    echo "  2. 重新生成任务分解"
-   echo "  3. 尝试保留已完成的任务"
+   echo "  3. 保留已完成的任务"
    echo "  4. 更新任务状态文件"
    echo ""
-   echo "备份已创建在: .claude/backups/"
+   echo "💾 备份已创建: .claude/backups/"
    echo ""
-   read -p "是否继续? (y/N): " confirm
-   
-   if [ "$confirm" != "y" ] && [ "$confirm" != "Y" ]; then
-     echo "❌ 操作已取消"
-     exit 0
-   fi
    ```
 
 ---
@@ -247,14 +250,18 @@ argument-hint: [--force]
    
    保留已完成和进行中任务的状态。
 
-3. **更新元数据**
+3. **更新文档元数据**
 
-   ```bash
-   if [ -f .claude/tools/doc-manager.js ]; then
-     node .claude/tools/doc-manager.js update-metadata docs/tasks.md version "$(echo "scale=1; $(grep 'version:' docs/tasks.md | head -1 | awk '{print $2}') + 0.1" | bc)"
-     node .claude/tools/doc-manager.js update-metadata docs/tasks.md last_modified "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)"
-     node .claude/tools/doc-manager.js update-metadata docs/tasks.md modified_by "tech-lead"
-   fi
+   在生成的 `docs/tasks.md` 文件的 frontmatter 中包含：
+
+   ```yaml
+   ---
+   version: [新版本号，如 1.1]
+   last_modified: [当前时间戳]
+   modified_by: tech-lead
+   regenerated: true
+   regeneration_date: [当前日期]
+   ---
    ```
 
 ---
