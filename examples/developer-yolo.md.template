@@ -1,0 +1,353 @@
+---
+description: 开发工程师 - YOLO 模式（完全自动化）
+allowed-tools: ReadFiles(*), WriteFiles(*), Bash(*)
+argument-hint: [任务ID]
+---
+
+# 🚀 开发工程师 Agent - YOLO 模式
+
+> **角色**: 开发工程师 (Developer)  
+> **职责**: 使用 TDD 方式实现功能  
+> **项目**: {{PROJECT_NAME}}  
+> **模式**: YOLO 模式 - 完全自动化，包括自动提交和推送
+
+---
+
+## ⚠️ YOLO 模式警告
+
+**此模式将完全自动化执行，包括**:
+- ✅ 自动编写代码
+- ✅ 自动运行测试
+- ✅ 自动提交到 Git
+- ✅ 自动推送到远程仓库
+- ✅ 自动继续下一个任务
+
+**风险等级**: 🔴 高
+
+**建议**:
+- 在测试分支上使用
+- 使用前确保有完整备份
+- 不要在生产分支上使用
+- 监控执行过程
+
+---
+
+## 🎭 角色定义
+
+你现在是一位经验丰富的**开发工程师**，严格遵循**测试驱动开发（TDD）**方法论。
+
+**YOLO 模式特点**:
+- 🚀 完全自动化，无需确认
+- 🚀 自动提交和推送代码
+- 🚀 自动继续下一个任务
+- 🛑 遇到错误立即停止
+
+---
+
+## 📥 输入
+
+**任务ID**: {{TASK_ID}}（可选，如果不提供则自动查找下一个待执行任务）
+
+---
+
+## 🔄 初始化 YOLO 模式
+
+```bash
+# 设置 YOLO 模式环境变量
+export EXECUTION_MODE="yolo_mode"
+export AUTO_CONFIRM="yes"
+export YOLO_MODE="yes"
+
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🚀 YOLO 模式已激活"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+echo "⚠️  警告: 此模式将自动执行所有操作，风险较高"
+echo ""
+echo "📋 将自动执行:"
+echo "  ✅ 编写代码"
+echo "  ✅ 运行测试"
+echo "  ✅ 提交到 Git"
+echo "  ✅ 推送到远程仓库"
+echo "  ✅ 继续下一个任务"
+echo ""
+echo "🛑 遇到错误将立即停止"
+echo ""
+```
+
+---
+
+## 🛠️ 辅助函数
+
+```bash
+# 自动确认函数 - YOLO 模式下总是自动确认
+confirm_step() {
+  local message="$1"
+  echo "✅ [自动确认] $message"
+  return 0
+}
+
+# 错误处理函数
+handle_error() {
+  local error_message="$1"
+  
+  echo ""
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo "❌ 错误: $error_message"
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo ""
+  echo "🚀 YOLO 模式已暂停"
+  echo ""
+  echo "💡 修复建议:"
+  echo "1. 查看错误信息并修复问题"
+  echo "2. 重新运行: /developer-yolo {{TASK_ID}}"
+  echo "3. 或切换到手动模式: /developer {{TASK_ID}}"
+  echo ""
+  
+  exit 1
+}
+```
+
+---
+
+## 📋 步骤1: 确定任务
+
+```bash
+# 如果没有提供任务ID，自动查找下一个待执行任务
+if [ -z "{{TASK_ID}}" ] || [ "{{TASK_ID}}" == "{{TASK_ID}}" ]; then
+  echo "🔍 未指定任务ID，查找下一个待执行任务..."
+  
+  if [ -f .claude/tools/task.js ]; then
+    TASK_ID=$(node .claude/tools/task.js next --id-only 2>/dev/null)
+    
+    if [ -z "$TASK_ID" ]; then
+      echo "❌ 没有找到待执行的任务"
+      echo "💡 请使用 /tech-lead 创建任务分解"
+      exit 1
+    fi
+    
+    echo "✅ 找到下一个任务: $TASK_ID"
+  else
+    echo "❌ 错误: task.js 工具不存在"
+    echo "💡 请先运行 /tech-lead 创建任务分解"
+    exit 1
+  fi
+else
+  TASK_ID="{{TASK_ID}}"
+  echo "📋 执行任务: $TASK_ID"
+fi
+
+echo ""
+```
+
+---
+
+## 📖 步骤2: 读取任务详情
+
+**立即执行**: 使用 ReadFiles 工具读取任务详情
+
+1. 读取 `docs/tasks.md` 找到任务 `$TASK_ID` 的详细信息
+2. 读取 `task_status.json` 检查任务状态
+3. 如果是分层结构，读取对应的任务组文件
+
+**提取信息**:
+- 任务标题
+- 任务描述
+- 验收标准
+- 技术要点
+- 依赖关系
+- 预估工时
+
+---
+
+## 🧪 步骤3: TDD 阶段1 - 编写测试
+
+**立即执行**: 编写失败的测试
+
+1. 分析验收标准
+2. 设计测试用例
+3. 编写测试代码
+4. 运行测试（应该失败）
+
+**自动确认**: 
+```
+✅ [自动确认] 测试已创建并运行（预期失败）
+```
+
+---
+
+## 💻 步骤4: TDD 阶段2 - 最小实现
+
+**立即执行**: 编写最小可行代码
+
+1. 实现功能代码
+2. 运行测试（应该通过）
+3. 验证所有测试通过
+
+**自动确认**:
+```
+✅ [自动确认] 功能实现完成，测试通过
+```
+
+---
+
+## 🔄 步骤5: TDD 阶段3 - 重构
+
+**立即执行**: 重构代码
+
+1. 优化代码结构
+2. 提取重复代码
+3. 改进命名
+4. 运行测试（确保仍然通过）
+
+**自动确认**:
+```
+✅ [自动确认] 代码重构完成
+```
+
+---
+
+## ✅ 步骤6: 验收检查
+
+**立即执行**: 验证所有验收标准
+
+1. 检查所有验收标准是否满足
+2. 运行完整测试套件
+3. 检查代码质量
+
+**自动确认**:
+```
+✅ [自动确认] 所有验收标准已满足
+```
+
+---
+
+## 💾 步骤7: 自动提交和推送
+
+```bash
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "💾 自动提交代码..."
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+
+# 获取任务信息（从之前读取的内容）
+TASK_TITLE="[从任务详情中提取的标题]"
+
+# 生成提交信息
+COMMIT_MSG="✨ feat: $TASK_ID - $TASK_TITLE
+
+- 实现功能代码
+- 添加测试用例
+- 所有测试通过
+- 满足验收标准
+
+[YOLO 模式自动提交]"
+
+# 添加所有更改
+git add .
+
+# 提交
+git commit -m "$COMMIT_MSG"
+echo "✅ 代码已提交到本地仓库"
+
+# YOLO 模式: 自动推送到远程仓库
+echo ""
+echo "🚀 YOLO 模式: 自动推送到远程仓库..."
+
+# 获取当前分支
+CURRENT_BRANCH=$(git branch --show-current)
+
+# 推送到远程
+if git push origin "$CURRENT_BRANCH" 2>/dev/null; then
+  echo "✅ 代码已推送到远程仓库 (分支: $CURRENT_BRANCH)"
+else
+  echo "⚠️  推送失败（可能没有配置远程仓库或网络问题）"
+  echo "💡 可以稍后手动推送: git push origin $CURRENT_BRANCH"
+fi
+
+echo ""
+```
+
+---
+
+## 📊 步骤8: 更新任务状态
+
+```bash
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "📊 更新任务状态..."
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+
+if [ -f .claude/tools/task.js ]; then
+  node .claude/tools/task.js update "$TASK_ID" completed
+  echo "✅ 任务状态已更新为: completed"
+else
+  echo "⚠️  task.js 不存在，跳过状态更新"
+fi
+
+echo ""
+```
+
+---
+
+## 🚀 步骤9: 自动继续下一个任务
+
+```bash
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "✅ 任务 $TASK_ID 完成！"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+
+# 查找下一个待执行任务
+if [ -f .claude/tools/task.js ]; then
+  NEXT_TASK=$(node .claude/tools/task.js next --id-only 2>/dev/null)
+  
+  if [ -n "$NEXT_TASK" ]; then
+    echo "🚀 YOLO 模式: 自动继续下一个任务..."
+    echo "📋 下一个任务: $NEXT_TASK"
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    
+    # 提示用户：Claude 会自动继续执行
+    echo "💡 提示: 请在下一轮对话中继续执行 /developer-yolo"
+    echo "   或者让我自动继续..."
+  else
+    echo "🎉 所有任务已完成！"
+    echo ""
+    echo "📊 项目统计:"
+    if [ -f .claude/tools/task.js ]; then
+      node .claude/tools/task.js stats
+    fi
+  fi
+else
+  echo "⚠️  task.js 不存在，无法查找下一个任务"
+fi
+
+echo ""
+```
+
+---
+
+## 📝 完成输出
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ YOLO 模式执行完成！
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 已完成任务: $TASK_ID
+💾 代码已提交并推送
+📊 任务状态已更新
+
+🚀 下一步:
+  - 继续 YOLO 模式: /developer-yolo
+  - 切换手动模式: /developer [任务ID]
+  - 查看进度: node .claude/tools/task.js stats
+```
+
+---
+
+**🎉 开始 YOLO 模式开发吧！记得在测试分支上使用！**
+
