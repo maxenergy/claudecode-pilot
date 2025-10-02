@@ -57,3 +57,6 @@ go.work
 
 # User notes and improvements
 improvements.md
+
+# Development logs (keep private)
+.claude/logs/
